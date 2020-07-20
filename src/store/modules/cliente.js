@@ -14,19 +14,29 @@ export default {
       state.listaClientes = lista;
     },
     adicionarCliente(state, payload) {
-      state.listaClientes[payload.name] = payload.cliente;
+      state.listaClientes = { ...state.listaClientes, [payload.id]: payload.cliente };
+    },
+    editarCliente(state, payload) {
+      state.listaClientes[payload.id] = payload.cliente;
     }
   },
   actions: {
-    adicionarCliente({ commit }, cliente) {
-      axios
-        .post('/clientes.json', cliente)
-        .then(data => {
-          commit('adicionarCliente', { name: data.name, cliente });
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    async adicionarCliente({ commit }, cliente) {
+      try {
+        const response = await axios.post('/clientes.json', cliente);
+        commit('adicionarCliente', { id: response.data.name, cliente });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async editarCliente({ commit }, payload) {
+      try {
+        const response = await axios.post('/clientes.json', payload);
+        console.log(response);
+        commit('editarCliente', { id: response.data.name, cliente: payload });
+      } catch (error) {
+        console.log(error);
+      }
     },
     async buscarClientes({ commit }) {
       try {
