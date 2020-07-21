@@ -1,5 +1,6 @@
 <template>
   <section class="container">
+    <h2>Editar Cliente</h2>
     <b-form @submit.prevent="submeter" aria-autocomplete="off">
       <b-form-group label="Nome:">
         <b-form-input
@@ -45,22 +46,18 @@
 
 <script>
 import { required, minLength } from 'vuelidate/lib/validators';
-import axios from '../../../services/api';
+import ClienteService from '../../services/cliente.service';
 
 export default {
   name: 'ClienteAdicionar',
   mounted() {
-    this.carregarCliente();
-  },
-  props: {
-    id: {
-      type: String,
-      required: true
-    }
+    this.id = this.$route.params.id
+    this.carregarCliente(this.id);
   },
   data() {
     return {
       cliente: {},
+      id: '',
       form: {
         nome: '',
         whatsapp: '',
@@ -82,9 +79,8 @@ export default {
   },
   methods: {
     submeter() {
-      // Mover para then da chamada do serviço em actions
-      this.$store.dispatch('cliente/editarCliente', this.form);
-      this.voltar();
+      this.$store.dispatch('cliente/editarCliente', {...this.form, id: this.id});
+      this.voltar()
     },
     validateState(name) {
       const { $dirty, $error } = this.$v.form[name];
@@ -93,11 +89,10 @@ export default {
     voltar() {
       this.$router.go(-1);
     },
-    async carregarCliente() {
+    async carregarCliente(id) {
       try {
-        const res = await axios.get(`clientes/${this.id}.json`);
+        const res = await ClienteService.findOne(id);
         this.cliente = { ...res.data };
-        this.cliente.id = this.id;
         this.form = { ...this.cliente };
       } catch (error) {
         console.error(error);

@@ -1,7 +1,6 @@
-import axios from '../../services/api';
+import ClienteService from '../../services/cliente.service';
 
 export default {
-  name: 'cliente',
   namespaced: true,
   state: { listaClientes: {} },
   getters: {
@@ -23,7 +22,7 @@ export default {
   actions: {
     async adicionarCliente({ commit }, cliente) {
       try {
-        const response = await axios.post('/clientes.json', cliente);
+        const response = await ClienteService.save(cliente)
         commit('adicionarCliente', { id: response.data.name, cliente });
       } catch (error) {
         console.log(error);
@@ -31,16 +30,20 @@ export default {
     },
     async editarCliente({ commit }, payload) {
       try {
-        const response = await axios.post('/clientes.json', payload);
-        console.log(response);
-        commit('editarCliente', { id: response.data.name, cliente: payload });
+        const { nome, whatsapp, pendentes } = payload
+        const cliente = {nome, whatsapp, pendentes}
+        await ClienteService.update(payload.id, cliente)
+        commit('editarCliente', {
+          id: payload.id,
+          cliente
+        });
       } catch (error) {
         console.log(error);
       }
     },
     async buscarClientes({ commit }) {
       try {
-        const response = await axios.get('/clientes.json');
+        const response = await ClienteService.index()
         commit('buscarClientes', response.data);
       } catch (error) {
         console.log(error);
